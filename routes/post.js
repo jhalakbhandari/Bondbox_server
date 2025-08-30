@@ -47,7 +47,7 @@ router.post("/", authMiddleware, upload.single("photo"), async (req, res) => {
 router.get("/:roomId", authMiddleware, async (req, res) => {
   try {
     const posts = await Post.find({ roomId: req.params.roomId }).sort({
-      createdAt: 1,
+      createdAt: -1,
     });
     res.json(posts);
   } catch (err) {
