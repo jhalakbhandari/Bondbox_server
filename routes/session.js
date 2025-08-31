@@ -21,10 +21,10 @@ router.post("/start", authMiddleware, async (req, res) => {
 // Finish a session
 router.post("/finish/:sessionId", authMiddleware, async (req, res) => {
   try {
-    console.log("params", req.params);
+    // console.log("params", req.params);
 
     const { sessionId } = req.params; // get from URL params
-    console.log("Session ID:", sessionId);
+    // console.log("Session ID:", sessionId);
 
     const session = await Session.findByIdAndUpdate(
       sessionId,

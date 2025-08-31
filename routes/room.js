@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/create", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log(userId);
+    // console.log(userId);
 
     const existingRoom = await User.findById(userId).select("room");
     if (existingRoom.room) {
