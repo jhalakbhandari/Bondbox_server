@@ -58,7 +58,7 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      const { roomId, text } = req.body;
+      const { roomId, text, sessionId } = req.body;
 
       const photo = req.files["photo"] ? req.files["photo"][0].path : "";
       const audio = req.files["audio"] ? req.files["audio"][0].path : "";
@@ -70,6 +70,8 @@ router.post(
 
       const post = await Post.create({
         roomId,
+        sessionId: sessionId || null, // attach to session if provided
+
         text,
         photo,
         audio,
@@ -87,9 +89,11 @@ router.post(
 // Get posts for a room
 router.get("/:roomId", authMiddleware, async (req, res) => {
   try {
-    const posts = await Post.find({ roomId: req.params.roomId }).sort({
-      createdAt: -1,
-    });
+    const posts = await Post.find({ roomId: req.params.roomId })
+      .populate("sessionId", "label")
+      .sort({
+        createdAt: -1,
+      });
     res.json(posts);
   } catch (err) {
     console.error(err);
