@@ -5,6 +5,7 @@ import roomRoutes from "./routes/room.js";
 import postRoutes from "./routes/post.js";
 import authRoutes from "./routes/auth.js";
 import sessionRoutes from "./routes/session.js";
+import loveNoteRoutes from "./routes/lovenote.js";
 import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/room", roomRoutes);
 app.use("/post", postRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/session", sessionRoutes);
+app.use("/lovenote", loveNoteRoutes);
 // Sample route
 app.get("/", (req, res) => {
   res.send("Hello from Express API 🚀");
