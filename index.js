@@ -8,6 +8,8 @@ import sessionRoutes from "./routes/session.js";
 import loveNoteRoutes from "./routes/lovenote.js";
 import fs from "fs";
 import dotenv from "dotenv";
+import { initSocket } from "./config/socket.js";
+
 dotenv.config();
 
 const app = express();
@@ -35,6 +37,5 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-});
+const server = app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+initSocket(server);

@@ -18,6 +18,7 @@ const loveNoteSchema = new mongoose.Schema({
   unlockedAt: { type: Date, default: Date.now }, // when it can be opened
   isInstant: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
+  isRead: { type: Boolean, default: false }, // ✅ track if viewed
 });
 
 export default mongoose.model("LoveNote", loveNoteSchema);
