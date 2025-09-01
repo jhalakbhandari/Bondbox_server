@@ -13,7 +13,7 @@ export const initSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    // console.log("User connected:", socket.id);
 
     socket.on("register", (userId) => {
       if (!connectedUsers[userId]) connectedUsers[userId] = [];
