@@ -89,12 +89,32 @@ router.post(
 // Get posts for a room
 router.get("/:roomId", authMiddleware, async (req, res) => {
   try {
-    const posts = await Post.find({ roomId: req.params.roomId })
+    // const posts = await Post.find({ roomId: req.params.roomId })
+    //   .populate("sessionId", "label")
+    //   .sort({
+    //     createdAt: -1,
+    //   });
+    // res.json(posts);
+    const { roomId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    // Fetch posts with pagination
+    const posts = await Post.find({ roomId })
       .populate("sessionId", "label")
-      .sort({
-        createdAt: -1,
-      });
-    res.json(posts);
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Total count for hasMore
+    const totalPosts = await Post.countDocuments({ roomId });
+
+    res.json({
+      posts,
+      hasMore: skip + posts.length < totalPosts,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

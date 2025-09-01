@@ -6,6 +6,7 @@ import postRoutes from "./routes/post.js";
 import authRoutes from "./routes/auth.js";
 import sessionRoutes from "./routes/session.js";
 import loveNoteRoutes from "./routes/lovenote.js";
+import bucketListRoutes from "./routes/bucketlist.js";
 import fs from "fs";
 import dotenv from "dotenv";
 import { initSocket } from "./config/socket.js";
@@ -27,6 +28,8 @@ app.use("/post", postRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/session", sessionRoutes);
 app.use("/lovenote", loveNoteRoutes);
+app.use("/bucketlist", bucketListRoutes);
+
 // Sample route
 app.get("/", (req, res) => {
   res.send("Hello from Express API 🚀");
