@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth.js";
 import sessionRoutes from "./routes/session.js";
 import loveNoteRoutes from "./routes/lovenote.js";
 import bucketListRoutes from "./routes/bucketlist.js";
+import exportRoutes from "./routes/export.js";
+
 import fs from "fs";
 import dotenv from "dotenv";
 import { initSocket } from "./config/socket.js";
@@ -29,6 +31,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/session", sessionRoutes);
 app.use("/lovenote", loveNoteRoutes);
 app.use("/bucketlist", bucketListRoutes);
+app.use("/exports", exportRoutes);
 
 // Sample route
 app.get("/", (req, res) => {
