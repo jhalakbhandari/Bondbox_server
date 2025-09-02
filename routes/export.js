@@ -2,6 +2,7 @@ import express from "express";
 import puppeteer from "puppeteer";
 import Post from "../models/Post.js";
 import Room from "../models/Room.js";
+import path from "path";
 
 const router = express.Router();
 
@@ -149,10 +150,21 @@ router.get("/pdf/:roomId", async (req, res) => {
 
     // Generate PDF using Puppeteer
     // const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+    // const browser = await puppeteer.launch({
+    //   args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    //   headless: true,
+    // });
+    const chromePath = path.resolve(
+      ".cache/puppeteer",
+      "chrome-linux",
+      "chrome"
+    );
+
     const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
       headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
+
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
     const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
