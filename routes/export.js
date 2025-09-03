@@ -14,7 +14,9 @@ router.get("/pdf/:roomId", async (req, res) => {
     if (!room) return res.status(404).send("Room not found");
 
     const posts = await Post.find({ roomId }).sort({ createdAt: -1 }).limit(10);
-
+    if (!posts.length) {
+      return res.status(404).json({ error: "No memories found" });
+    }
     const coupleQuotes = [
       "Every little memory with you feels like forever. 💕",
       "You & I, a perfect little story. ✨",

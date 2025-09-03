@@ -28,7 +28,7 @@ export const initSocket = (server) => {
         );
         if (connectedUsers[userId].length === 0) delete connectedUsers[userId];
       }
-      console.log("❌ Socket disconnected:", socket.id);
+      // console.log("❌ Socket disconnected:", socket.id);
     });
   });
 };
