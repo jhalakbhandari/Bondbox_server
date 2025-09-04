@@ -17,54 +17,39 @@ import { initSocket } from "./config/socket.js";
 dotenv.config();
 
 const app = express();
-app.use(helmet());
-
-// Strict-Transport-Security (forces HTTPS)
+// ✅ Helmet with security configs
 app.use(
-  helmet.hsts({
-    maxAge: 63072000, // 2 years in seconds
-    includeSubDomains: true,
-    preload: true,
-  })
-);
-
-// Content-Security-Policy (control allowed sources)
-app.use(
-  helmet.contentSecurityPolicy({
-    useDefaults: true,
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https:"],
-      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
-      imgSrc: ["'self'", "https:", "data:"],
-      connectSrc: ["'self'", "https:"],
-      fontSrc: ["'self'", "https:", "data:"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https:"],
+        styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+        imgSrc: ["'self'", "https:", "data:"],
+        connectSrc: ["'self'", "https:"],
+        fontSrc: ["'self'", "https:", "data:"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
     },
+    frameguard: { action: "sameorigin" }, // X-Frame-Options
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    crossOriginEmbedderPolicy: false, // prevent build issues with some libs
   })
 );
 
-// X-Frame-Options (prevent clickjacking)
-app.use(helmet.frameguard({ action: "sameorigin" }));
-
-// X-Content-Type-Options (prevent MIME sniffing)
-app.use(helmet.noSniff());
-
-// Referrer-Policy (control referrer info)
-app.use(helmet.referrerPolicy({ policy: "no-referrer" }));
-
-// Permissions-Policy (limit browser features, replaces Feature-Policy)
-app.use(
-  helmet.permissionsPolicy({
-    features: {
-      camera: ["none"],
-      microphone: ["none"],
-      geolocation: ["none"],
-      fullscreen: ["self"],
-    },
-  })
-);
+// ✅ Extra headers not covered by Helmet
+app.use((req, res, next) => {
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload"
+  );
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()"
+  );
+  next();
+});
 
 const PORT = process.env.PORT || 5000;
 app.use(cors());
