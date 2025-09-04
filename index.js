@@ -22,7 +22,7 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"],
+        defaultSrc: ["'self'", "https://bondbox-client.vercel.app"],
         scriptSrc: ["'self'", "https:"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
         imgSrc: ["'self'", "https:", "data:"],
