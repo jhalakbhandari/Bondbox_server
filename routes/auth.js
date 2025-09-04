@@ -4,6 +4,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import authMiddleware from "../middlewares/authentication.js";
+import rateLimit from "express-rate-limit";
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // max 10 tries
+  message: "Too many login attempts. Try again later.",
+});
+
 const router = express.Router();
 // const JWT_SECRET = "supersecret"; // ⚠️ use env variable in prod
 
@@ -25,11 +32,14 @@ router.post("/signup", async (req, res) => {
 
 // Login
 
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email }).populate("room");
-  if (!user) return res.status(404).json({ message: "User not found. Incorrect email or password." });
+  if (!user)
+    return res
+      .status(404)
+      .json({ message: "User not found. Incorrect email or password." });
 
   const validPassword = await bcrypt.compare(password, user.password);
   if (!validPassword)
