@@ -31,6 +31,7 @@ app.use(
           "https:",
           "https://bondbox-client.vercel.app",
           "https://bondbox-server.onrender.com",
+          "wss://bondbox-server.onrender.com",
           "https://api.cloudinary.com",
         ],
         fontSrc: ["'self'", "https:", "data:"],
