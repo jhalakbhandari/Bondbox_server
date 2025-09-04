@@ -8,6 +8,7 @@ import sessionRoutes from "./routes/session.js";
 import loveNoteRoutes from "./routes/lovenote.js";
 import bucketListRoutes from "./routes/bucketlist.js";
 import exportRoutes from "./routes/export.js";
+import helmet from "helmet";
 
 import fs from "fs";
 import dotenv from "dotenv";
@@ -16,6 +17,55 @@ import { initSocket } from "./config/socket.js";
 dotenv.config();
 
 const app = express();
+app.use(helmet());
+
+// Strict-Transport-Security (forces HTTPS)
+app.use(
+  helmet.hsts({
+    maxAge: 63072000, // 2 years in seconds
+    includeSubDomains: true,
+    preload: true,
+  })
+);
+
+// Content-Security-Policy (control allowed sources)
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https:"],
+      styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+      imgSrc: ["'self'", "https:", "data:"],
+      connectSrc: ["'self'", "https:"],
+      fontSrc: ["'self'", "https:", "data:"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
+
+// X-Frame-Options (prevent clickjacking)
+app.use(helmet.frameguard({ action: "sameorigin" }));
+
+// X-Content-Type-Options (prevent MIME sniffing)
+app.use(helmet.noSniff());
+
+// Referrer-Policy (control referrer info)
+app.use(helmet.referrerPolicy({ policy: "no-referrer" }));
+
+// Permissions-Policy (limit browser features, replaces Feature-Policy)
+app.use(
+  helmet.permissionsPolicy({
+    features: {
+      camera: ["none"],
+      microphone: ["none"],
+      geolocation: ["none"],
+      fullscreen: ["self"],
+    },
+  })
+);
+
 const PORT = process.env.PORT || 5000;
 app.use(cors());
 // Middleware to parse JSON
