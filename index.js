@@ -26,7 +26,11 @@ app.use(
         scriptSrc: ["'self'", "https:"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
         imgSrc: ["'self'", "https:", "data:"],
-        connectSrc: ["'self'", "https:"],
+        connectSrc: [
+          "'self'",
+          "https:",
+          "https://bondbox-client.vercel.app", // allow API calls from client
+        ],
         fontSrc: ["'self'", "https:", "data:"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
