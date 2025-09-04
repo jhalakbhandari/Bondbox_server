@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import authMiddleware from "../middlewares/authentication.js";
 import rateLimit from "express-rate-limit";
+import { body, validationResult } from "express-validator";
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // max 10 tries
