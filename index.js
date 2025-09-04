@@ -29,16 +29,19 @@ app.use(
         connectSrc: [
           "'self'",
           "https:",
-          "https://bondbox-client.vercel.app", // allow API calls from client
+          "https://bondbox-client.vercel.app",
+          "https://bondbox-server.onrender.com",
+          "https://api.cloudinary.com",
         ],
         fontSrc: ["'self'", "https:", "data:"],
+        mediaSrc: ["'self'", "blob:", "https://res.cloudinary.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },
     },
-    frameguard: { action: "sameorigin" }, // X-Frame-Options
+    frameguard: { action: "sameorigin" },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-    crossOriginEmbedderPolicy: false, // prevent build issues with some libs
+    crossOriginEmbedderPolicy: false,
   })
 );
 
