@@ -8,6 +8,7 @@ import sessionRoutes from "./routes/session.js";
 import loveNoteRoutes from "./routes/lovenote.js";
 import bucketListRoutes from "./routes/bucketlist.js";
 import exportRoutes from "./routes/export.js";
+import paymentRoutes from "./routes/payment.js";
 import helmet from "helmet";
 
 import fs from "fs";
@@ -87,6 +88,7 @@ app.use("/session", sessionRoutes);
 app.use("/lovenote", loveNoteRoutes);
 app.use("/bucketlist", bucketListRoutes);
 app.use("/exports", exportRoutes);
+app.use("/payment", paymentRoutes);
 
 // Sample route
 app.get("/", (req, res) => {
