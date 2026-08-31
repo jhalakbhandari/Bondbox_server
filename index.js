@@ -100,15 +100,19 @@ if (!dbUrl) {
   console.warn("⚠️  DATABASE_URL environment variable is missing! Please configure it in .env");
 } else {
   mongoose
-    .connect(dbUrl)
+    .connect(dbUrl, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    })
     .then((conn) => {
       console.log(`✅ MongoDB connected successfully to host: ${conn.connection.host}, database: ${conn.connection.name}`);
     })
     .catch((err) => {
       console.error("❌ MongoDB connection error:", err.message || err);
-      console.warn("💡 Tip: If using local MongoDB, ensure MongoDB service is running (e.g. mongod or MongoDB Community Service). If using MongoDB Atlas, check your DATABASE_URL, IP whitelist, and user credentials in Bondbox_server/.env.");
+      console.warn("💡 Tip: In live production, ensure MongoDB Atlas Network Access has 0.0.0.0/0 (Allow Access from Anywhere) enabled.");
     });
 }
 
 const server = app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 initSocket(server);
+

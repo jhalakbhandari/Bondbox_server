@@ -71,27 +71,32 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).populate("room");
-    if (!user)
-      return res
-        .status(404)
-        .json({ message: "User not found. Incorrect email or password." });
+      const user = await User.findOne({ email }).populate("room");
+      if (!user)
+        return res
+          .status(404)
+          .json({ message: "User not found. Incorrect email or password." });
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword)
-      return res.status(400).json({ message: "Invalid password" });
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword)
+        return res.status(400).json({ message: "Invalid password" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
-    res.json({
-      user,
-      token,
-      roomId: user.room ? user.room._id : null, // tell frontend if user already has room
-    });
+      res.json({
+        user,
+        token,
+        roomId: user.room ? user.room._id : null, // tell frontend if user already has room
+      });
+    } catch (err) {
+      console.error("Login error:", err);
+      res.status(500).json({ message: err.message || "Server error during login" });
+    }
   }
 );
 // router.get("/me", authMiddleware, async (req, res) => {
