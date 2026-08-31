@@ -29,10 +29,17 @@ app.use(
         connectSrc: [
           "'self'",
           "https:",
+          "http:",
+          "wss:",
+          "ws:",
           "https://bondbox-client.vercel.app",
           "https://bondbox-server.onrender.com",
           "wss://bondbox-server.onrender.com",
           "https://api.cloudinary.com",
+          "http://localhost:*",
+          "ws://localhost:*",
+          "http://127.0.0.1:*",
+          "ws://127.0.0.1:*",
         ],
         fontSrc: ["'self'", "https:", "data:"],
         mediaSrc: ["'self'", "blob:", "https://res.cloudinary.com"],
@@ -60,7 +67,12 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
 // Middleware to parse JSON
 app.use(express.json());
 const uploadDir = "uploads";
@@ -81,10 +93,20 @@ app.get("/", (req, res) => {
   res.send("Hello from Express API 🚀");
 });
 
-mongoose
-  .connect(process.env.DATABASE_URL)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl) {
+  console.warn("⚠️  DATABASE_URL environment variable is missing! Please configure it in .env");
+} else {
+  mongoose
+    .connect(dbUrl)
+    .then((conn) => {
+      console.log(`✅ MongoDB connected successfully to host: ${conn.connection.host}, database: ${conn.connection.name}`);
+    })
+    .catch((err) => {
+      console.error("❌ MongoDB connection error:", err.message || err);
+      console.warn("💡 Tip: If using local MongoDB, ensure MongoDB service is running (e.g. mongod or MongoDB Community Service). If using MongoDB Atlas, check your DATABASE_URL, IP whitelist, and user credentials in Bondbox_server/.env.");
+    });
+}
 
-const server = app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+const server = app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 initSocket(server);

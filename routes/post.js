@@ -103,7 +103,7 @@ router.get("/:roomId", authMiddleware, async (req, res) => {
 
     // Fetch posts with pagination
     const posts = await Post.find({ roomId })
-      .populate("sessionId", "label")
+      .populate("sessionId", "label startedAt finishedAt")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
