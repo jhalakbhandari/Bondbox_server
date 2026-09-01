@@ -29,25 +29,46 @@ import multer from "multer";
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    let folder = "bondbox_uploads"; // your main Cloudinary folder
-    let resource_type = "auto"; // auto-detect (image, video, audio)
+    let folder = "bondbox_uploads";
+    let resource_type = "auto";
 
-    // Optional: separate folders by type
-    if (file.mimetype.startsWith("image/")) folder = "bondbox_uploads/images";
-    else if (file.mimetype.startsWith("video/"))
+    if (file.mimetype.startsWith("image/")) {
+      folder = "bondbox_uploads/images";
+      return {
+        folder,
+        resource_type: "image",
+        format: "jpg", // Auto-convert HEIC, HEIF, TIFF to standard JPG for universal browser compatibility
+        public_id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        transformation: [{ quality: "auto", fetch_format: "auto" }],
+      };
+    } else if (file.mimetype.startsWith("video/")) {
       folder = "bondbox_uploads/videos";
-    else if (file.mimetype.startsWith("audio/"))
+      resource_type = "video";
+    } else if (file.mimetype.startsWith("audio/")) {
       folder = "bondbox_uploads/audios";
+      resource_type = "video";
+    }
 
     return {
       folder,
       resource_type,
-      public_id: Date.now().toString(), // unique filename
+      public_id: `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     };
   },
 });
 
 const upload = multer({ storage });
+
+const getFileUrl = (files, fieldName) => {
+  if (!files || !files[fieldName] || !files[fieldName][0]) return "";
+  const file = files[fieldName][0];
+  let url = file.path || file.secure_url || file.url || "";
+  if (url.startsWith("http://res.cloudinary.com/")) {
+    url = url.replace("http://res.cloudinary.com/", "https://res.cloudinary.com/");
+  }
+  return url;
+};
+
 router.post(
   "/",
   authMiddleware,
@@ -60,9 +81,9 @@ router.post(
     try {
       const { roomId, text, sessionId } = req.body;
 
-      const photo = req.files["photo"] ? req.files["photo"][0].path : "";
-      const audio = req.files["audio"] ? req.files["audio"][0].path : "";
-      const video = req.files["video"] ? req.files["video"][0].path : "";
+      const photo = getFileUrl(req.files, "photo");
+      const audio = getFileUrl(req.files, "audio");
+      const video = getFileUrl(req.files, "video");
 
       if (!text && !photo && !audio && !video) {
         return res.status(400).json({ message: "Post cannot be empty" });
@@ -71,8 +92,7 @@ router.post(
       const post = await Post.create({
         roomId,
         sessionId: sessionId || null, // attach to session if provided
-
-        text,
+        text: text || "",
         photo,
         audio,
         video,
@@ -80,9 +100,10 @@ router.post(
 
       res.json(post);
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+      console.error("Post creation error:", err);
+      res.status(500).json({ message: "Server error creating post" });
     }
+
   }
 );
 

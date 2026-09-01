@@ -26,7 +26,14 @@ app.use(
         defaultSrc: ["'self'", "https://bondbox-client.vercel.app"],
         scriptSrc: ["'self'", "https:"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
-        imgSrc: ["'self'", "https:", "data:"],
+        imgSrc: [
+          "'self'",
+          "https:",
+          "http:",
+          "data:",
+          "blob:",
+          "https://res.cloudinary.com",
+        ],
         connectSrc: [
           "'self'",
           "https:",
@@ -37,13 +44,21 @@ app.use(
           "https://bondbox-server.onrender.com",
           "wss://bondbox-server.onrender.com",
           "https://api.cloudinary.com",
+          "https://res.cloudinary.com",
           "http://localhost:*",
           "ws://localhost:*",
           "http://127.0.0.1:*",
           "ws://127.0.0.1:*",
         ],
         fontSrc: ["'self'", "https:", "data:"],
-        mediaSrc: ["'self'", "blob:", "https://res.cloudinary.com"],
+        mediaSrc: [
+          "'self'",
+          "blob:",
+          "data:",
+          "https:",
+          "http:",
+          "https://res.cloudinary.com",
+        ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },
@@ -51,8 +66,10 @@ app.use(
     frameguard: { action: "sameorigin" },
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
     crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
+
 
 // ✅ Extra headers not covered by Helmet
 app.use((req, res, next) => {
