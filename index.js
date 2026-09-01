@@ -26,7 +26,7 @@ app.use(
         defaultSrc: ["'self'", "https://bondbox-client.vercel.app"],
         scriptSrc: ["'self'", "https:"],
         styleSrc: ["'self'", "https:", "'unsafe-inline'"],
-        imgSrc: ["'self'", "https:", "http:", "data:", "blob:", "https://res.cloudinary.com"],
+        imgSrc: ["'self'", "https:", "data:"],
         connectSrc: [
           "'self'",
           "https:",
@@ -43,7 +43,7 @@ app.use(
           "ws://127.0.0.1:*",
         ],
         fontSrc: ["'self'", "https:", "data:"],
-        mediaSrc: ["'self'", "blob:", "data:", "http:", "https:", "https://res.cloudinary.com"],
+        mediaSrc: ["'self'", "blob:", "https://res.cloudinary.com"],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: [],
       },

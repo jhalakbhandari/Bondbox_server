@@ -1,19 +1,38 @@
 // routes/post.js
 import express from "express";
 import Post from "../models/Post.js";
+const router = express.Router();
 import authMiddleware from "../middlewares/authentication.js";
+import path from "path";
+import cloudinary from "../config/cloudinary.js";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
-import cloudinary from "../config/cloudinary.js";
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/"); // folder to save images
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   },
+// });
+// const upload = multer({ storage });import cloudinary from "../config/cloudinary.js";
 
-const router = express.Router();
+// const storage = new CloudinaryStorage({
+//   cloudinary,
+//   params: {
+//     folder: "myapp_uploads",
+//     allowed_formats: ["jpg", "png", "jpeg"],
+//   },
+// });
 
+// const upload = multer({ storage });
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => {
-    let folder = "bondbox_uploads";
-    let resource_type = "auto";
+    let folder = "bondbox_uploads"; // your main Cloudinary folder
+    let resource_type = "auto"; // auto-detect (image, video, audio)
 
+    // Optional: separate folders by type
     if (file.mimetype.startsWith("image/")) folder = "bondbox_uploads/images";
     else if (file.mimetype.startsWith("video/"))
       folder = "bondbox_uploads/videos";
@@ -23,14 +42,12 @@ const storage = new CloudinaryStorage({
     return {
       folder,
       resource_type,
-      public_id: Date.now().toString(),
+      public_id: Date.now().toString(), // unique filename
     };
   },
 });
 
 const upload = multer({ storage });
-
-// Create a new post / memory
 router.post(
   "/",
   authMiddleware,
@@ -43,9 +60,9 @@ router.post(
     try {
       const { roomId, text, sessionId } = req.body;
 
-      const photo = req.files && req.files["photo"] ? req.files["photo"][0].path : "";
-      const audio = req.files && req.files["audio"] ? req.files["audio"][0].path : "";
-      const video = req.files && req.files["video"] ? req.files["video"][0].path : "";
+      const photo = req.files["photo"] ? req.files["photo"][0].path : "";
+      const audio = req.files["audio"] ? req.files["audio"][0].path : "";
+      const video = req.files["video"] ? req.files["video"][0].path : "";
 
       if (!text && !photo && !audio && !video) {
         return res.status(400).json({ message: "Post cannot be empty" });
@@ -53,7 +70,8 @@ router.post(
 
       const post = await Post.create({
         roomId,
-        sessionId: sessionId || null,
+        sessionId: sessionId || null, // attach to session if provided
+
         text,
         photo,
         audio,
@@ -62,27 +80,35 @@ router.post(
 
       res.json(post);
     } catch (err) {
-      console.error("Error creating post:", err);
-      res.status(500).json({ message: "Server error creating memory" });
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   }
 );
 
-// Get posts for a room with pagination
+// Get posts for a room
 router.get("/:roomId", authMiddleware, async (req, res) => {
   try {
+    // const posts = await Post.find({ roomId: req.params.roomId })
+    //   .populate("sessionId", "label")
+    //   .sort({
+    //     createdAt: -1,
+    //   });
+    // res.json(posts);
     const { roomId } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
     const skip = (page - 1) * limit;
 
+    // Fetch posts with pagination
     const posts = await Post.find({ roomId })
       .populate("sessionId", "label startedAt finishedAt")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
+    // Total count for hasMore
     const totalPosts = await Post.countDocuments({ roomId });
 
     res.json({
@@ -90,12 +116,12 @@ router.get("/:roomId", authMiddleware, async (req, res) => {
       hasMore: skip + posts.length < totalPosts,
     });
   } catch (err) {
-    console.error("Error fetching posts:", err);
-    res.status(500).json({ message: "Server error fetching memories" });
+    console.error(err);
+    res.status(500).json({ message: "Server error fetching posts" });
   }
 });
 
-// Delete a post / memory
+// Delete a post/memory
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -111,3 +137,4 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 });
 
 export default router;
+
